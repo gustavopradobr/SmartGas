@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 021643e0952a19d49919a1fa53b814f4
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Switzer
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: b12678bcb3a7c304ebaca22d5067898d, type: 3}
+  - {fileID: 12800000, guid: 61b705549d3de65418f5eb7259d00d50, type: 3}
+  - {fileID: 12800000, guid: b1a0e0fc2eb8d9c47a2a917278ba085b, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
