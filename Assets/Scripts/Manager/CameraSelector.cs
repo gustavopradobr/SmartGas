@@ -11,20 +11,7 @@ public class CameraSelector : MonoBehaviour
 
     private int actualCamera = 0;
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            NextCamera();
-        }
-    }
-
-    private void NextCamera()
+    public void NextCamera()
     {
         if (GameManager.Instance.phoneIsOpen) return;
 

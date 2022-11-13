@@ -8,11 +8,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("References")]
-    [SerializeField] private AppUI appUiManager;
+    public AppUI appUiManager;
     [SerializeField] private MapManager mapManager;
+    public AudioManager audioManager;
 
     [Header("Car Controller")]
-    [SerializeField] private PrometeoHelper carHelper;
+    public PrometeoHelper carHelper;
 
     [Header("Phone")]
     [SerializeField] private GameObject phoneRoot;
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool rotateByMousePosition = false;
 
     [HideInInspector] public CameraSelector cameraSelector;
+    [HideInInspector] public InputManager inputManager;
+    [HideInInspector] public SceneScript sceneScript;
     [HideInInspector] public bool phoneIsOpen { get; private set; }
     private bool canOpenPhone = true;
     Vector3 phoneOriginalAngles;
@@ -32,11 +35,14 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         else
             Instance = this;
+
+        cameraSelector = GetComponent<CameraSelector>();
+        inputManager = GetComponent<InputManager>();
+        sceneScript = GetComponent<SceneScript>();
     }
 
     void Start()
     {
-        cameraSelector = GetComponent<CameraSelector>();
         phoneOriginalAngles = phoneModelTransform.localRotation.eulerAngles;
 
         phoneRoot.transform.localPosition = phoneSupportTransform.localPosition;
@@ -48,18 +54,13 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            OpenPhone(!phoneIsOpen);
-        }
-
         if (phoneIsOpen && rotateByMousePosition)
         {
             RotatePhoneByMousePosition();
         }
     }
 
-    private void OpenPhone(bool open)
+    public void OpenPhone(bool open)
     {
         if (!canOpenPhone) return;
         canOpenPhone = false;
@@ -67,15 +68,17 @@ public class GameManager : MonoBehaviour
 
         Transform targetTransform = open ? phoneHandTransform : phoneSupportTransform;
 
+        audioManager.PlayWoosh(0.25f, 0.7f);
+
         if (open)
         {
             carHelper.ActivateHandbrake();
-            carHelper.ActivateInput(false);
-            cameraSelector.SetPhoneCamera();
+            //carHelper.ActivateInput(false);
+            cameraSelector.SetPhoneCamera();            
         }
         else
         {
-            carHelper.ActivateInput(true);
+            //carHelper.ActivateInput(true);
             cameraSelector.SetCamera(1);
             appUiManager.SetTouchActive(false);
         }
@@ -107,5 +110,10 @@ public class GameManager : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(new Vector3(mouseRatioY * 5, mouseRatioX * -15, 0) + phoneOriginalAngles);
         Quaternion deriv = Quaternion.identity;
         phoneModelTransform.localRotation = QuaternionUtil.SmoothDamp(phoneModelTransform.localRotation, targetRotation, ref deriv, Time.deltaTime * 4f);
+    }
+
+    public void EnableVehicleInput(bool enable)
+    {
+        carHelper.ActivateInput(enable);
     }
 }

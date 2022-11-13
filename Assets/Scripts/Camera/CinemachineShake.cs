@@ -36,6 +36,7 @@ public class CinemachineShake : MonoBehaviour
 
     IEnumerator ShakeCameraCoroutine(float amp, float freq, float duration, bool easeOut)
     {
+        duration = Mathf.Max(duration, 0.01f);
         if (easeOut)
         {
             float elapsed = 0;

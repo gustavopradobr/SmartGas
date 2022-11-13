@@ -23,6 +23,7 @@ public class AppUI : MonoBehaviour
 
     [Header("Function Buttons")]
     [SerializeField] private Button mapButton;
+    [SerializeField] private Button pumpButton;
 
     private bool phoneAwake = false;
     private Coroutine gpsCoroutine;
@@ -39,6 +40,7 @@ public class AppUI : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SetScreen(0, false);
@@ -51,6 +53,7 @@ public class AppUI : MonoBehaviour
         {
             SetScreen(2, false);
         }
+#endif
     } 
 
     public void PhoneWake()
@@ -81,6 +84,8 @@ public class AppUI : MonoBehaviour
         if (gpsCoroutine != null)
             StopCoroutine(gpsCoroutine);
         gpsCoroutine = StartCoroutine(GPSAnimationCoroutine());
+
+        GameManager.Instance.sceneScript.MapButtonClicked();
     }
 
     private IEnumerator GPSAnimationCoroutine()
@@ -92,6 +97,8 @@ public class AppUI : MonoBehaviour
         gpsStep[0].SetActive(false);
         gpsStep[1].SetActive(true);
         GameManager.Instance.MapScreenChanged(true);
+        GameManager.Instance.audioManager.PlayRouteFound();
+        GameManager.Instance.sceneScript.MapFound();
     }
 
     public void ShowGPSArrivedScreen()
@@ -120,6 +127,16 @@ public class AppUI : MonoBehaviour
             StopCoroutine(gpsCoroutine);
     }
 
+    public void EnableMapButton(bool enable)
+    {
+        mapButton.interactable = enable;
+    }
+
+    public void EnablePumpButton(bool enable)
+    {
+        pumpButton.interactable = enable;
+    }
+
     public void SetTouchActive(bool activate)
     {
         raycaster.enabled = activate;
@@ -127,9 +144,9 @@ public class AppUI : MonoBehaviour
 
     private void SetupFunctionButtons()
     {
-        startAppButton.onClick.AddListener(delegate { ShowLoadingScreen(); });
-        backButton.onClick.AddListener(delegate { NavigationBackButton(); });
+        startAppButton.onClick.AddListener(delegate { ShowLoadingScreen(); GameManager.Instance.audioManager.PlayButton2(); });
+        backButton.onClick.AddListener(delegate { NavigationBackButton(); GameManager.Instance.audioManager.PlayButton1(); });
 
-        mapButton.onClick.AddListener(delegate { ShowMapScreen(); });
+        mapButton.onClick.AddListener(delegate { ShowMapScreen(); GameManager.Instance.audioManager.PlayButton2(); });
     }
 }

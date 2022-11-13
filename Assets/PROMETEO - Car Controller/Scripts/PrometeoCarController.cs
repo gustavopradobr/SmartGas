@@ -105,6 +105,7 @@ public class PrometeoCarController : MonoBehaviour
       public AudioSource carEngineSound; // This variable stores the sound of the car engine.
       public AudioSource tireScreechSound; // This variable stores the sound of the tire screech (when the car is drifting).
       float initialCarEngineSoundPitch; // Used to store the initial pitch of the car engine sound.
+      float initialCarEngineSoundVolume; 
 
     //CONTROLS
 
@@ -207,6 +208,7 @@ public class PrometeoCarController : MonoBehaviour
         // We save the initial pitch of the car engine sound.
         if(carEngineSound != null){
           initialCarEngineSoundPitch = carEngineSound.pitch;
+            initialCarEngineSoundVolume = carEngineSound.volume;
         }
 
         // We invoke 2 methods inside this script. CarSpeedUI() changes the text of the UI object that stores
@@ -399,16 +401,27 @@ public class PrometeoCarController : MonoBehaviour
       if(useSounds){
         try{
           if(carEngineSound != null){
-            float engineSoundPitch = initialCarEngineSoundPitch + (Mathf.Abs(carRigidbody.velocity.magnitude) / 25f);
+            float engineSoundPitch = initialCarEngineSoundPitch + (Mathf.Abs(carRigidbody.velocity.magnitude) / 20f);
+            float engineSoundVolume = initialCarEngineSoundVolume + initialCarEngineSoundVolume * (Mathf.Abs(carRigidbody.velocity.magnitude) / 25f) * 2;
             carEngineSound.pitch = engineSoundPitch;
+            carEngineSound.volume = engineSoundVolume;
           }
-          if((isDrifting) || (isTractionLocked && Mathf.Abs(carSpeed) > 12f)){
-            if(!tireScreechSound.isPlaying){
-              tireScreechSound.Play();
+
+          if(tireScreechSound != null)
+            {
+                if ((isDrifting) || (isTractionLocked && Mathf.Abs(carSpeed) > 12f))
+                {
+                    if (!tireScreechSound.isPlaying)
+                    {
+                        tireScreechSound.Play();
+                    }
+                }
+                else if ((!isDrifting) && (!isTractionLocked || Mathf.Abs(carSpeed) < 12f))
+                {
+                    tireScreechSound.Stop();
+                }
             }
-          }else if((!isDrifting) && (!isTractionLocked || Mathf.Abs(carSpeed) < 12f)){
-            tireScreechSound.Stop();
-          }
+
         }catch(Exception ex){
           Debug.LogWarning(ex);
         }
