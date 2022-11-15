@@ -1,10 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class SceneScript : MonoBehaviour
 {
+    [SerializeField] private PlayableDirector timelineGasPump;
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GameManager.Instance.appUiManager.EnablePumpButton(true);
+            GameManager.Instance.EnableVehicleInput(true);
+            GameManager.Instance.inputManager.EnableInput(true);
+            GameManager.Instance.cameraSelector.SetCamera(1);
+            NotificationManager.Instance.EndNotification();
+        }
+    }
+#endif
     void Start()
     {
         GameManager.Instance.EnableVehicleInput(false);
@@ -81,7 +95,6 @@ public class SceneScript : MonoBehaviour
     {
         if (pumpTriggerCompleted) return; pumpTriggerCompleted = true;
 
-        Debug.Log("Pump Trigger");
         GameManager.Instance.appUiManager.ShowGPSArrivedScreen();
         GameManager.Instance.appUiManager.EnableMapButton(false);
         GameManager.Instance.appUiManager.EnablePumpButton(true);
@@ -100,7 +113,47 @@ public class SceneScript : MonoBehaviour
     private void OpenPhoneOnPump()
     {
         InputManager.M_KeyDown -= OpenPhoneOnPump;
-
         NotificationManager.Instance.EndNotification();
+
+        AppUI.onEnableGasPump += EnableGasPump;
+    }
+
+    private void EnableGasPump()
+    {
+        AppUI.onEnableGasPump -= EnableGasPump;
+
+        timelineGasPump.Play();
+        timelineGasPump.stopped += EndGasPumpTimeline;
+    }
+
+    private void EndGasPumpTimeline(PlayableDirector director)
+    {
+        timelineGasPump.stopped -= EndGasPumpTimeline;
+
+        GameManager.Instance.appUiManager.EnablePumpButton(false);
+        GameManager.Instance.cameraSelector.SetCamera(0);
+
+        DelayedHelper.InvokeDelayed(FuelComplete1, 1.5f);
+    }
+
+    private void FuelComplete1()
+    {
+        NotificationManager.Instance.ShowNotification("Placa confirmada!",
+            "Você foi encontrado no banco de dados e foi feita liberação da bomba de combustível.",
+            NotificationObject.NotificationButtonType.ConfirmButton,
+            true, 0, FuelComplete2);
+    }
+
+    private void FuelComplete2()
+    {
+        NotificationManager.Instance.ShowNotification("Abastecimento realizado!",
+        "Seu tanque está decente novamente, obrigado pela preferência e aproveite o seu possante.",
+        NotificationObject.NotificationButtonType.ConfirmButton,
+        true, 0, FuelComplete3);
+    }    
+    
+    private void FuelComplete3()
+    {
+        GameManager.Instance.EnableVehicleInput(true);
     }
 }

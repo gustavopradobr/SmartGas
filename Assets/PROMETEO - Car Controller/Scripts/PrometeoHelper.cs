@@ -46,6 +46,7 @@ public class PrometeoHelper : MonoBehaviour
         {
             //Debug.Log($"Impact: {impact} - Scale : {impactScale}");
             GameManager.Instance.cameraSelector.ShakeCamera(impactScale);
+            GameManager.Instance.audioManager.PlayCarImpact(impactScale, impactScale);
         }
     }
 }

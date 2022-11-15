@@ -28,6 +28,9 @@ public class AppUI : MonoBehaviour
     private bool phoneAwake = false;
     private Coroutine gpsCoroutine;
 
+    public delegate void AppEvent();
+    public static AppEvent onEnableGasPump;
+
     private void Start()
     {
         SetupFunctionButtons();
@@ -127,6 +130,11 @@ public class AppUI : MonoBehaviour
             StopCoroutine(gpsCoroutine);
     }
 
+    private void EnableGasPump()
+    {
+        onEnableGasPump?.Invoke();
+    }
+
     public void EnableMapButton(bool enable)
     {
         mapButton.interactable = enable;
@@ -148,5 +156,6 @@ public class AppUI : MonoBehaviour
         backButton.onClick.AddListener(delegate { NavigationBackButton(); GameManager.Instance.audioManager.PlayButton1(); });
 
         mapButton.onClick.AddListener(delegate { ShowMapScreen(); GameManager.Instance.audioManager.PlayButton2(); });
+        pumpButton.onClick.AddListener(delegate { EnableGasPump(); GameManager.Instance.audioManager.PlayButton2(); });
     }
 }
