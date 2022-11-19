@@ -6,6 +6,10 @@ using UnityEngine.Playables;
 public class SceneScript : MonoBehaviour
 {
     [SerializeField] private PlayableDirector timelineGasPump;
+    [SerializeField] private PumpAnimation pumpAnimation;
+    [SerializeField] private GameObject pumpCamera;
+    [SerializeField] private TriggerEvent pumpTrigger;
+
 #if UNITY_EDITOR
     private void Update()
     {
@@ -23,6 +27,8 @@ public class SceneScript : MonoBehaviour
     {
         GameManager.Instance.EnableVehicleInput(false);
         GameManager.Instance.inputManager.EnableInput(false);
+        pumpCamera.SetActive(false);
+        pumpTrigger.onTriggerEnter.AddListener(PumpTrigger);
 
         DelayedHelper.InvokeDelayed(Notification1, 3);
     }
@@ -90,17 +96,42 @@ public class SceneScript : MonoBehaviour
             true, 0, delegate { GameManager.Instance.inputManager.EnableInput(false); GameManager.Instance.EnableVehicleInput(true); });
     }
 
+    private bool CarInAligned()
+    {
+        float maxAngle = 20;
+        float angleDiff = Vector3.SignedAngle(GameManager.Instance.carHelper.transform.forward, pumpTrigger.transform.forward, Vector3.up);
+        //Debug.Log("Angle diff: " + angleDiff);
+        return Mathf.Abs(angleDiff) <= maxAngle;
+    }
+
     private bool pumpTriggerCompleted = false;
     public void PumpTrigger()
     {
-        if (pumpTriggerCompleted) return; pumpTriggerCompleted = true;
+        if (pumpTriggerCompleted) return;
 
+        if (!CarInAligned())
+        {
+            GameManager.Instance.EnableVehicleInput(false);
+
+            NotificationManager.Instance.ShowNotification(null,
+                "Você estacionou de uma maneira péssima, por favor saia da vaga e entre novamente de maneira apropriada.",
+                NotificationObject.NotificationButtonType.ConfirmButton,
+                true, 0, delegate { GameManager.Instance.EnableVehicleInput(true); });
+            return;
+        }
+        else
+            NotificationManager.Instance.EndNotification();
+
+        pumpTriggerCompleted = true;
+
+        pumpTrigger.transform.parent.gameObject.SetActive(false);
         GameManager.Instance.appUiManager.ShowGPSArrivedScreen();
         GameManager.Instance.appUiManager.EnableMapButton(false);
         GameManager.Instance.appUiManager.EnablePumpButton(true);
         GameManager.Instance.EnableVehicleInput(false);
         GameManager.Instance.inputManager.EnableInput(true);
         GameManager.Instance.carHelper.ActivateHandbrake();
+        GameManager.Instance.carHelper.SetRigidbodyDrag(true);
 
         NotificationManager.Instance.ShowNotification("Você chegou ao posto!",
             "Aperte M para pegar o celular e liberar a bomba de combustível.",
@@ -129,9 +160,9 @@ public class SceneScript : MonoBehaviour
     private void EndGasPumpTimeline(PlayableDirector director)
     {
         timelineGasPump.stopped -= EndGasPumpTimeline;
+        pumpCamera.SetActive(true);
 
-        GameManager.Instance.appUiManager.EnablePumpButton(false);
-        GameManager.Instance.cameraSelector.SetCamera(0);
+        GameManager.Instance.appUiManager.EnablePumpButton(false);        
 
         DelayedHelper.InvokeDelayed(FuelComplete1, 1.5f);
     }
@@ -146,14 +177,28 @@ public class SceneScript : MonoBehaviour
 
     private void FuelComplete2()
     {
-        NotificationManager.Instance.ShowNotification("Abastecimento realizado!",
-        "Seu tanque está decente novamente, obrigado pela preferência e aproveite o seu possante.",
-        NotificationObject.NotificationButtonType.ConfirmButton,
-        true, 0, FuelComplete3);
-    }    
-    
+        GameManager.Instance.carHelper.SetRigidbodyKinematic(true);
+        pumpAnimation.AnimatePump(true, 5f, FuelComplete3);
+    }
     private void FuelComplete3()
     {
+        DelayedHelper.InvokeDelayed(delegate { pumpAnimation.AnimatePump(false, 3f, FuelComplete4); }, 5f);        
+    }
+    private void FuelComplete4()
+    {
+        GameManager.Instance.carHelper.SetRigidbodyKinematic(false);
+        GameManager.Instance.carHelper.SetRigidbodyDrag(false);
+
+        NotificationManager.Instance.ShowNotification("Abastecimento realizado!",
+        "Seu tanque está cheio novamente, obrigado pela preferência e aproveite o seu possante.",
+        NotificationObject.NotificationButtonType.ConfirmButton,
+        true, 0, FuelComplete5);
+    }    
+    
+    private void FuelComplete5()
+    {
+        GameManager.Instance.cameraSelector.SetCamera(0);
+        pumpCamera.SetActive(false);
         GameManager.Instance.EnableVehicleInput(true);
     }
 }

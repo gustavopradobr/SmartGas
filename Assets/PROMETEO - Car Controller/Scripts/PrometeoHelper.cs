@@ -13,12 +13,14 @@ public class PrometeoHelper : MonoBehaviour
     [SerializeField] private float maxImpact = 10f;
 
     private Rigidbody rigidbody;
+    private float originalDrag;
     private PrometeoCarController carController;
 
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
         carController = GetComponent<PrometeoCarController>();
+        originalDrag = rigidbody.drag;
     }
 
     public void RotateSteeringWheel(float steer)
@@ -36,6 +38,15 @@ public class PrometeoHelper : MonoBehaviour
         carController.inputEnabled = activate;
     }
 
+    public void SetRigidbodyKinematic(bool kinematic)
+    {
+        rigidbody.isKinematic = kinematic;
+    }
+
+    public void SetRigidbodyDrag(bool increase)
+    {
+        rigidbody.drag = increase ? 3 : originalDrag;
+    }
     private void OnCollisionEnter(Collision collision)
     {
         float impact = collision.impulse.magnitude;

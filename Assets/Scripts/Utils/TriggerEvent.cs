@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class TriggerEvent : MonoBehaviour
 {
-    [SerializeField] private UnityEvent onTriggerEnter;
+    public UnityEvent onTriggerEnter;
 
     private void OnTriggerEnter(Collider col)
     {

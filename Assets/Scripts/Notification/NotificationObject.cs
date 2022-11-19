@@ -24,6 +24,7 @@ public class NotificationObject : MonoBehaviour
     private TextMeshProUGUI desiredContentText;
     private RectTransform rect;
     private Vector2 originalPosition;
+    private Vector2 originalSize;
 
     private void Initialize(Action? closeAction, Coroutine closeCoroutine)
     {
@@ -31,6 +32,8 @@ public class NotificationObject : MonoBehaviour
         {
             rect = GetComponent<RectTransform>();
             originalPosition = rect.anchoredPosition;
+            originalSize.x = rect.rect.width;
+            originalSize.y = rect.rect.height;
         }
 
         closeButton.onClick.RemoveAllListeners();
@@ -91,8 +94,8 @@ public class NotificationObject : MonoBehaviour
     {
         int charCount = content.Length;
         float multiplier = headerEnabled ? 2.0f : 1.7f;
-        float desiredHeight = Mathf.Clamp(charCount * multiplier, headerEnabled ? 320 : 220, 440);
-        float desiredWidth = Mathf.Lerp(680, 840, Mathf.InverseLerp(20, 40, charCount));
+        float desiredHeight = Mathf.Clamp(charCount * multiplier, headerEnabled ? originalSize.y * 0.9f : originalSize.y * 0.65f, originalSize.y * 1.25f);
+        float desiredWidth = Mathf.Lerp(originalSize.x * 0.92f, originalSize.x * 1.14f, Mathf.InverseLerp(20, 40, charCount));
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, desiredHeight);
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
     }

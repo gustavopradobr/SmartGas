@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -22,12 +24,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform phoneModelTransform;
     [SerializeField] private bool rotateByMousePosition = false;
 
+    [Header("Menu")]
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button backMenuButton;
+    [SerializeField] private GameObject pauseMenuCanvas;
+
     [HideInInspector] public CameraSelector cameraSelector;
     [HideInInspector] public InputManager inputManager;
     [HideInInspector] public SceneScript sceneScript;
     [HideInInspector] public bool phoneIsOpen { get; private set; }
     private bool canOpenPhone = true;
     Vector3 phoneOriginalAngles;
+
+    private bool paused = false;
 
     private void Awake()
     {
@@ -50,6 +59,24 @@ public class GameManager : MonoBehaviour
         phoneIsOpen = false;
         cameraSelector.SetCamera(1);
         mapManager.EnableWorldRoute(false);
+
+        continueButton.onClick.AddListener(PauseGame);
+        backMenuButton.onClick.AddListener(BackToMenu);
+
+        pauseMenuCanvas.SetActive(false);
+        Time.timeScale = 1;
+    }
+    private void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void PauseGame()
+    {
+        paused = !paused;
+
+        Time.timeScale = paused ? 0.000000001f : 1;
+        pauseMenuCanvas.SetActive(paused);
     }
 
     void Update()
