@@ -272,7 +272,6 @@ public class PrometeoCarController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!inputEnabled) return;
       //CAR DATA
 
       // We determine the speed of the car.
@@ -282,19 +281,26 @@ public class PrometeoCarController : MonoBehaviour
       // Save the local velocity of the car in the z axis. Used to know if the car is going forward or backwards.
       localVelocityZ = transform.InverseTransformDirection(carRigidbody.velocity).z;
 
-      //CAR PHYSICS
+        //CAR PHYSICS
 
-      /*
-      The next part is regarding to the car controller. First, it checks if the user wants to use touch controls (for
-      mobile devices) or analog input controls (WASD + Space).
+        /*
+        The next part is regarding to the car controller. First, it checks if the user wants to use touch controls (for
+        mobile devices) or analog input controls (WASD + Space).
 
-      The following methods are called whenever a certain key is pressed. For example, in the first 'if' we call the
-      method GoForward() if the user has pressed W.
+        The following methods are called whenever a certain key is pressed. For example, in the first 'if' we call the
+        method GoForward() if the user has pressed W.
 
-      In this part of the code we specify what the car needs to do if the user presses W (throttle), S (reverse),
-      A (turn left), D (turn right) or Space bar (handbrake).
-      */
-      if (useTouchControls && touchControlsSetup){
+        In this part of the code we specify what the car needs to do if the user presses W (throttle), S (reverse),
+        A (turn left), D (turn right) or Space bar (handbrake).
+        */
+        if (!inputEnabled)
+        {
+            ThrottleOff();
+            ResetSteeringAngle();
+            return;
+        }
+
+        if (useTouchControls && touchControlsSetup){
 
         if(throttlePTI.buttonPressed){
           CancelInvoke("DecelerateCar");
@@ -409,7 +415,7 @@ public class PrometeoCarController : MonoBehaviour
 
           if(tireScreechSound != null)
             {
-                if ((isDrifting) || (isTractionLocked && Mathf.Abs(carSpeed) > 12f))
+                if ((isDrifting && Mathf.Abs(carSpeed) > 2f) || (isTractionLocked && Mathf.Abs(carSpeed) > 12f))
                 {
                     if (!tireScreechSound.isPlaying)
                     {
@@ -417,6 +423,10 @@ public class PrometeoCarController : MonoBehaviour
                     }
                 }
                 else if ((!isDrifting) && (!isTractionLocked || Mathf.Abs(carSpeed) < 12f))
+                {
+                    tireScreechSound.Stop();
+                }
+                else
                 {
                     tireScreechSound.Stop();
                 }

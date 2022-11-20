@@ -75,7 +75,6 @@ public class SceneScript : MonoBehaviour
         if (mapFoundCompleted) return; mapFoundCompleted = true;
 
         GameManager.Instance.inputManager.EnableInput(true);
-
         NotificationManager.Instance.ShowNotification("Posto encontrado!",
             "Aperte M para guardar o celular e siga a rota até o posto mais próximo.",
             NotificationObject.NotificationButtonType.None,
@@ -112,6 +111,7 @@ public class SceneScript : MonoBehaviour
         if (!CarInAligned())
         {
             GameManager.Instance.EnableVehicleInput(false);
+            GameManager.Instance.carHelper.ActivateHandbrake();
 
             NotificationManager.Instance.ShowNotification(null,
                 "Você estacionou de uma maneira péssima, por favor saia da vaga e entre novamente de maneira apropriada.",
@@ -145,6 +145,7 @@ public class SceneScript : MonoBehaviour
     {
         InputManager.M_KeyDown -= OpenPhoneOnPump;
         NotificationManager.Instance.EndNotification();
+        GameManager.Instance.inputManager.EnableInput(false);
 
         AppUI.onEnableGasPump += EnableGasPump;
     }
@@ -152,6 +153,8 @@ public class SceneScript : MonoBehaviour
     private void EnableGasPump()
     {
         AppUI.onEnableGasPump -= EnableGasPump;
+
+        GameManager.Instance.OpenPhone(false);
 
         timelineGasPump.Play();
         timelineGasPump.stopped += EndGasPumpTimeline;
@@ -170,24 +173,26 @@ public class SceneScript : MonoBehaviour
     private void FuelComplete1()
     {
         NotificationManager.Instance.ShowNotification("Placa confirmada!",
-            "Você foi encontrado no banco de dados e foi feita liberação da bomba de combustível.",
+            "Você foi encontrado no banco de dados e foi feita a liberação da bomba de combustível.",
             NotificationObject.NotificationButtonType.ConfirmButton,
             true, 0, FuelComplete2);
     }
 
-    private void FuelComplete2()
+    private void FuelComplete2() //start pump animation
     {
         GameManager.Instance.carHelper.SetRigidbodyKinematic(true);
         pumpAnimation.AnimatePump(true, 5f, FuelComplete3);
     }
-    private void FuelComplete3()
+    private void FuelComplete3() //starting gas filling
     {
-        DelayedHelper.InvokeDelayed(delegate { pumpAnimation.AnimatePump(false, 3f, FuelComplete4); }, 5f);        
+        GameManager.Instance.audioManager.PlayGasFillStart();
+        DelayedHelper.InvokeDelayed(delegate { pumpAnimation.AnimatePump(false, 3f, FuelComplete4); GameManager.Instance.audioManager.PlayGasFillEnd(); }, 7f);        
     }
-    private void FuelComplete4()
+    private void FuelComplete4() //pump are back to original place
     {
         GameManager.Instance.carHelper.SetRigidbodyKinematic(false);
         GameManager.Instance.carHelper.SetRigidbodyDrag(false);
+        GameManager.Instance.audioManager.PlayeCompletedSound();
 
         NotificationManager.Instance.ShowNotification("Abastecimento realizado!",
         "Seu tanque está cheio novamente, obrigado pela preferência e aproveite o seu possante.",
@@ -200,5 +205,7 @@ public class SceneScript : MonoBehaviour
         GameManager.Instance.cameraSelector.SetCamera(0);
         pumpCamera.SetActive(false);
         GameManager.Instance.EnableVehicleInput(true);
+        GameManager.Instance.inputManager.EnableInput(true);
+        GameManager.Instance.inputManager.EnableCameraSwitch(true);
     }
 }

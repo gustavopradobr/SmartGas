@@ -101,7 +101,8 @@ public class AppUI : MonoBehaviour
         gpsStep[1].SetActive(true);
         GameManager.Instance.MapScreenChanged(true);
         GameManager.Instance.audioManager.PlayRouteFound();
-        GameManager.Instance.sceneScript.MapFound();
+
+        DelayedHelper.InvokeDelayed(GameManager.Instance.sceneScript.MapFound, 1.5f);
     }
 
     public void ShowGPSArrivedScreen()

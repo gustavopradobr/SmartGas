@@ -10,6 +10,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource button2Source;
     [SerializeField] private AudioSource wooshSource;
     [SerializeField] private AudioSource carImpactSource;
+    [SerializeField] private AudioSource gasFillStart;
+    [SerializeField] private AudioSource gasFillEnd;
+    [SerializeField] private AudioSource completed;
 
     [Header("Audio Clips")]
     [SerializeField] private AudioClip lowFuel;
@@ -59,5 +62,22 @@ public class AudioManager : MonoBehaviour
         carImpactSource.volume = Mathf.Clamp(impactVolume * volumeFactor, impactVolume * 0.5f, impactVolume);
         carImpactSource.pitch = Mathf.Clamp(impactPitch * pitchFactor, impactPitch * 0.7f, impactPitch);
         carImpactSource.Play();
+    }
+
+    public void PlayGasFillStart()
+    {
+        gasFillStart.Stop();
+        gasFillStart.Play();
+    }
+    public void PlayGasFillEnd()
+    {
+        gasFillStart.Stop();
+        gasFillEnd.Stop();
+        gasFillEnd.Play();
+    }
+
+    public void PlayeCompletedSound()
+    {
+        completed.Play();
     }
 }

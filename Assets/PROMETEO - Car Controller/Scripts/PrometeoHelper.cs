@@ -45,7 +45,7 @@ public class PrometeoHelper : MonoBehaviour
 
     public void SetRigidbodyDrag(bool increase)
     {
-        rigidbody.drag = increase ? 3 : originalDrag;
+        rigidbody.drag = increase ? 5 : originalDrag;
     }
     private void OnCollisionEnter(Collision collision)
     {

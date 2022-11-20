@@ -14,23 +14,23 @@ public class PumpAnimation : MonoBehaviour
         int index = forwardAnimation ? 1 : (position.Length-2);
         int increment = forwardAnimation ? 1 : -1;
 
-        pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration*0.25f);
-        pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).OnComplete(() =>
+        pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration*0.25f).SetUpdate(false);
+        pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).SetUpdate(false).OnComplete(() =>
         {
             index += increment;
 
-            pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.2f);
-            pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).OnComplete(() =>
+            pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.2f).SetUpdate(false);
+            pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).SetUpdate(false).OnComplete(() =>
             {
                 index += increment;
 
-                pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.25f);
-                pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).OnComplete(() =>
+                pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.25f).SetUpdate(false);
+                pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).SetUpdate(false).OnComplete(() =>
                 {
                     index += increment;
 
-                    pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.25f);
-                    pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).OnComplete(() =>
+                    pumpRoot.DORotateQuaternion(position[index].transform.rotation, duration * 0.25f).SetUpdate(false);
+                    pumpRoot.DOMove(position[index].transform.position, duration * 0.25f).SetEase(Ease.Linear).SetUpdate(false).OnComplete(() =>
                     {
                         callback?.Invoke();
                     });

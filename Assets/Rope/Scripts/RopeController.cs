@@ -12,6 +12,7 @@ namespace Rope
         [SerializeField] Transform endTransform;
 
         GameObject[] fragments;
+        private LineRenderer lineRenderer;
 
         float[] xPositions;
         float[] yPositions;
@@ -25,6 +26,7 @@ namespace Rope
 
         void Start()
         {
+            lineRenderer = GetComponent<LineRenderer>();
             fragments = new GameObject[fragmentCount];
 
             var position = startTransform.position;
@@ -43,7 +45,6 @@ namespace Rope
                 position = startTransform.position + ((endTransform.position-startTransform.position) * (i / fragmentCount));
             }
 
-            var lineRenderer = GetComponent<LineRenderer>();
             lineRenderer.positionCount = (fragmentCount - 1) * splineFactor + 1;
 
             xPositions = new float[fragmentCount];
@@ -61,7 +62,9 @@ namespace Rope
         }
 
         void Update()
-        {   
+        {
+            if (!lineRenderer.isVisible) return;
+
             /*
             float distanceFactor = Mathf.InverseLerp(1, 5, Vector3.Distance(startTransform.position, endTransform.position));
             activeFragmentCount = Mathf.CeilToInt(Mathf.Lerp(3, fragmentCount, distanceFactor));
@@ -79,23 +82,22 @@ namespace Rope
                 }
             }
             */
-            
+
             fragments[0].GetComponent<Rigidbody>().MovePosition(startTransform.transform.position);
             fragments[0].GetComponent<Rigidbody>().MoveRotation(startTransform.rotation);
             fragments[fragmentCount - 1].GetComponent<Rigidbody>().MovePosition(endTransform.transform.position);
             fragments[fragmentCount - 1].GetComponent<Rigidbody>().MoveRotation(endTransform.transform.rotation);
-            
+
         }
 
         void LateUpdate()
         {
-            // Copy rigidbody positions to the line renderer
-            var lineRenderer = GetComponent<LineRenderer>();
+            if (!lineRenderer.isVisible) return;
 
             // No interpolation
             //for (var i = 0; i < fragmentNum; i++)
             //{
-            //    renderer.SetPosition(i, fragments[i].transform.position);
+            //   lineRenderer.SetPosition(i, fragments[i].transform.position);
             //}
 
             for (var i = 0; i < fragmentCount; i++)

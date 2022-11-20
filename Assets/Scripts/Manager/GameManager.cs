@@ -29,6 +29,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button backMenuButton;
     [SerializeField] private GameObject pauseMenuCanvas;
 
+    [Header("Cursor")]
+    [SerializeField] private Texture2D cursorTexBig;
+    [SerializeField] private Texture2D cursorTexMid;
+
     [HideInInspector] public CameraSelector cameraSelector;
     [HideInInspector] public InputManager inputManager;
     [HideInInspector] public SceneScript sceneScript;
@@ -52,6 +56,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        SetCursorHand(false);
+
         phoneOriginalAngles = phoneModelTransform.localRotation.eulerAngles;
 
         phoneRoot.transform.localPosition = phoneSupportTransform.localPosition;
@@ -74,8 +80,7 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         paused = !paused;
-
-        Time.timeScale = paused ? 0.000000001f : 1;
+        //Time.timeScale = paused ? 0.000000001f : 1;
         pauseMenuCanvas.SetActive(paused);
     }
 
@@ -90,6 +95,8 @@ public class GameManager : MonoBehaviour
     public void OpenPhone(bool open)
     {
         if (!canOpenPhone) return;
+
+        SetCursorHand(open);
         canOpenPhone = false;
         float duration = 1.0f;
 
@@ -134,7 +141,7 @@ public class GameManager : MonoBehaviour
         mouseRatioX = (mouseRatioX - 0.5f) * 2;
         mouseRatioY = (mouseRatioY - 0.5f) * 2;
 
-        Quaternion targetRotation = Quaternion.Euler(new Vector3(mouseRatioY * 5, mouseRatioX * -15, 0) + phoneOriginalAngles);
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(mouseRatioY * 8, mouseRatioX * -25, 0) + phoneOriginalAngles);
         Quaternion deriv = Quaternion.identity;
         phoneModelTransform.localRotation = QuaternionUtil.SmoothDamp(phoneModelTransform.localRotation, targetRotation, ref deriv, Time.deltaTime * 4f);
     }
@@ -142,5 +149,18 @@ public class GameManager : MonoBehaviour
     public void EnableVehicleInput(bool enable)
     {
         carHelper.ActivateInput(enable);
+    }
+    public static void SetCursorVisible(bool visible)
+    {
+        Cursor.visible = visible;
+    }
+    public void SetCursorHand(bool cursorHand)
+    {
+        Texture2D cursorTex = Screen.height >= 800 ? cursorTexBig : cursorTexMid;
+
+        if (cursorHand)
+            Cursor.SetCursor(cursorTex, new Vector2(40 / 512f, 30 / 512f), CursorMode.ForceSoftware);
+        else
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }
